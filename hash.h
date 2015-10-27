@@ -10,12 +10,12 @@
 typedef struct FileAndCount{
 	char* path;
 	int count;
-	struct FileCount* next;
+	struct FileAndCount* next;
 }FileCount;
 
 typedef struct Record{
 	char* word;
-	FileAndCount* files;
+	FileAndCount** files;
 	struct Record* next;
 }Record;
 
