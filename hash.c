@@ -1,7 +1,6 @@
-
+//Returns an initialzed hash table with 2000 bins
 Hash* ht_create(){
 	int i;
-
 	Hash* new = malloc(sizeof(Hash));
 	new->size = 0;
 	for( i = 0; i < 2000; i++){
@@ -10,19 +9,19 @@ Hash* ht_create(){
 	return new;
 }
 
-// using djb2 hash function
+// The djb2 hash function: used to hash strings
 unsigned long hash(unsigned char *str){
     unsigned long hash = 5381;
     int c;
-
     while (c = *str++)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     return hash;
 }
 
+//adds a key value pair to the hash table
 int ht_add(Hash* hash_table, char* file_path, char* word){
 	int index = hash(word) % 2000;
-
+	// create a new initial record if none are found
 	if(!hash_table->table[index]){
 		Record* new = table[index];
 		new = malloc(sizeof(Record));
@@ -33,16 +32,17 @@ int ht_add(Hash* hash_table, char* file_path, char* word){
 		new->files->path = file_path;
 		new->files->count = 1;
 		new->files->next = NULL;
-		printf("Inserted new word\n");
+		printf("Inserted new word to empty\n");
 		return 1;
 	}
 	else{
 		Record* rec = hash_table->table[index];
 		while(rec){
+			// if a matching record is found, update the file count
 			if(rec->word == word){
 				FileAndCount* fac = rec->files;
 				while(fac){
-					if(fac->path == file+path){
+					if(fac->path == file_path){
 						fac->count++;
 						prinf("Update file count\n");
 						return 1;
@@ -59,8 +59,20 @@ int ht_add(Hash* hash_table, char* file_path, char* word){
 			}
 			rec = rec->next;
 		}
-		printf("bad JUJU\n");
-		return 0;
+		// if no match found in existing bucket, create a new node and add to front
+		Record* new = malloc(sizeof(Record));
+		new->word = word;
+		new->next = table[index];
+
+		new->files = malloc(sizeof(FileAndCount));
+		new->files->path = file_path;
+		new->files->count = 1;
+		new->files->next = NULL;
+		table[index] = new;
+
+		printf("Inserted new Record to chain\n");
+		return 1;
+
 	}
 }
 
