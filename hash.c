@@ -22,44 +22,37 @@ unsigned long hash(unsigned char *str){
     return hash;
 }
 
+unsigned long hash_function(char* hashstring){
+	return hash((unsigned char*)(hashstring))%2000;
+}
+
 //adds a key value pair to the hash table
 int ht_add(Hash* hash_table, char* word, char* file_path){
-	unsigned long index = hash((unsigned char*)(word)) % 2000;
+
+	char hashstring [strlen(word) + strlen(file_path) + 1];
+	sprintf(hashstring, "%s%s", word, file_path);
+	
+	unsigned long index = hash_function(hashstring);
 	// create a new initial record if none are found
 	if(!hash_table->table[index]){
 		Record* new = malloc(sizeof(Record));
 		new->word = word;
+		new->hash_string = hashstring;
+		new->file_path = file_path;
+		new->count = 1;
 		new->next = NULL;
 
-		new->files = malloc(sizeof(FileAndCount));
-		new->files->path = file_path;
-		new->files->count = 1;
-		new->files->next = NULL;
-
 		hash_table->table[index] = new;
-		printf("Inserted new word to empty\n");
+		printf("Inserted new word to empty bucket\n");
 		return 1;
 	}
 	else{
 		Record* rec = hash_table->table[index];
 		while(rec){
 			// if a matching record is found, update the file count
-			if(rec->word == word){
-				FileAndCount* fac = rec->files;
-				while(fac){
-					if(fac->path == file_path){
-						fac->count++;
-						printf("Update file count\n");
-						return 1;
-					}
-					fac = fac->next;
-				}
-				FileAndCount* new_fac = malloc(sizeof(FileAndCount));
-				new_fac->path = file_path;
-				new_fac->count = 1;
-				new_fac->next = rec->files;
-				rec->files = new_fac;
-				printf("Add FileAndCount\n");
+			if(rec->word == word && rec->file_path == file_path){
+				rec->count++;
+				printf("increment existing entry\n");
 				return 1;
 			}
 			rec = rec->next;
@@ -67,12 +60,11 @@ int ht_add(Hash* hash_table, char* word, char* file_path){
 		// if no match found in existing bucket, create a new node and add to front
 		Record* new = malloc(sizeof(Record));
 		new->word = word;
+		new->file_path = file_path;
+		new->hash_string = hashstring;
+		new->count = 1;
 		new->next = hash_table->table[index];
 
-		new->files = malloc(sizeof(FileAndCount));
-		new->files->path = file_path;
-		new->files->count = 1;
-		new->files->next = NULL;
 		hash_table->table[index] = new;
 
 		printf("Inserted new Record to chain\n");
@@ -81,13 +73,15 @@ int ht_add(Hash* hash_table, char* word, char* file_path){
 }
 
 //Searches for the record, using the key. Ruturns NULL if not found
-Record* ht_search(Hash* hash_table, char* word){
-	unsigned long index = hash((unsigned char*)(word)) % 2000;
+Record* ht_search(Hash* hash_table, char* word, char* file_path){
+	char hashstring [strlen(word) + strlen(file_path) + 1];
+	sprintf(hashstring, "%s%s", word, file_path);
 
+	unsigned long index = hash_function(hashstring);
 	if(hash_table->table[index]){
 		Record* rec = hash_table->table[index];
 		while(rec){
-			if(rec->word == word) return rec;
+			if(rec->word == word && rec->file_path == file_path) return rec;
 			rec = rec->next;
 		}
 	}
@@ -97,16 +91,9 @@ Record* ht_search(Hash* hash_table, char* word){
 void ht_free(Hash* hash_table){
 	int i;
 	Record *rec, *delete_rec;
-	FileAndCount *fac, *delete_fac;
 	for( i= 0; i<2000; i++){
 		rec = hash_table->table[i];
 		while(rec){
-			fac = rec->files;
-			while(fac){
-				delete_fac = fac;
-				fac = fac->next;
-				free(delete_fac);
-			}
 			delete_rec = rec;
 			rec = rec->next;
 			free(delete_rec);
@@ -117,12 +104,7 @@ void ht_free(Hash* hash_table){
 
 void print_rec(Record* rec){
 	if(rec){
-		printf("Word: %s\n", rec->word);
-		FileAndCount* fac = rec->files;
-		while(fac){
-			printf("\t%s :%d\n", fac->path, fac->count);
-			fac = fac->next;
-		}
+		printf("Word: %s File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
 		return;
 	}
 	printf("Record is NULL\n");
@@ -130,13 +112,14 @@ void print_rec(Record* rec){
 }
 
 int main(){
-	unsigned long ul = hash((unsigned char*)("a")); 
-	printf("key: %lu bucket: %lu\n", ul, ul%2000); 
 	Hash* mh = ht_create();
 	ht_add(mh, "a", "baa");
 	ht_add(mh, "a", "boo");
 	ht_add(mh, "a", "boo");
-	Record* rec = ht_search( mh, "a");
+	Record* rec = ht_search( mh, "a", "baa");
+	Record* rec1 = ht_search( mh, "a", "boo");
+
 	print_rec(rec);
+	print_rec(rec1);
 	return 0;
 }
