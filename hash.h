@@ -6,16 +6,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct FileAndCount{
-	char* path;
-	int count;
-	struct FileAndCount* next;
-}FileAndCount;
+#include <string.h>
 
 typedef struct Record{
 	char* word;
-	struct FileAndCount* files;
+	char* file_path;
+	char* hash_string;
+
+	int count;
 	struct Record* next;
 }Record;
 
