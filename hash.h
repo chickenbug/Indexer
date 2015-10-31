@@ -22,4 +22,20 @@ typedef struct hashtable {
 	Record* table[2000];
 }Hash;
 
+void print_rec(Record* rec);
+
+Hash* ht_create();
+
+unsigned long hash(unsigned char *str);
+
+unsigned long hash_function(char* hashstring);
+
+int ht_add(Hash* hash_table, char* word, const char* file_path);
+
+Record* ht_search(Hash* hash_table, char* word, const char* file_path);
+
+void ht_free(Hash* hash_table);
+
+Record** hash_pull(Hash* ht);
+
 #endif
