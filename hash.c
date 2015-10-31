@@ -1,6 +1,16 @@
 #include "hash.h"
 
-//Returns an initialzed hash table with 2000 bins
+
+void print_rec(Record* rec){
+	if(rec){
+		printf("Word: %s File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
+		return;
+	}
+	printf("Record is NULL\n");
+	return;
+}
+
+/*Returns an initialzed hash table with 2000 bins*/
 Hash* ht_create(){
 	int i;
 	Hash* new = malloc(sizeof(Hash));
@@ -11,8 +21,8 @@ Hash* ht_create(){
 	return new;
 }
 
-// The djb2 hash function: used to hash strings
-// Which is actually giving me throuble
+/*The djb2 hash function: used to hash strings*/
+/*Which is actually giving me */
 unsigned long hash(unsigned char *str){
     unsigned long hash = 5381;
     int c;
@@ -26,62 +36,76 @@ unsigned long hash_function(char* hashstring){
 	return hash((unsigned char*)(hashstring))%2000;
 }
 
-//adds a key value pair to the hash table
-int ht_add(Hash* hash_table, char* word, char* file_path){
+/*adds a key value pair to the hash table*/
+int ht_add(Hash* hash_table, char* word, const char* file_path){
 
 	char hashstring [strlen(word) + strlen(file_path) + 1];
 	sprintf(hashstring, "%s%s", word, file_path);
 	
 	unsigned long index = hash_function(hashstring);
-	// create a new initial record if none are found
+	/*create a new initial record if none are found*/
 	if(!hash_table->table[index]){
 		Record* new = malloc(sizeof(Record));
-		new->word = word;
-		new->hash_string = hashstring;
-		new->file_path = file_path;
+
+		new->word = malloc(strlen(word)+1);
+		strcpy(new->word,word);
+		
+		new->file_path = malloc(strlen(file_path)+1);
+		strcpy(new->file_path,file_path);
+
+		new->hash_string = malloc(strlen(hashstring)+1);
+		strcpy(new->hash_string, hashstring);
+
 		new->count = 1;
 		new->next = NULL;
 
 		hash_table->table[index] = new;
-		printf("Inserted new word to empty bucket\n");
+		hash_table->size++;
+
 		return 1;
 	}
 	else{
 		Record* rec = hash_table->table[index];
 		while(rec){
-			// if a matching record is found, update the file count
+			/*if a matching record is found, update the file count*/
 			if(rec->word == word && rec->file_path == file_path){
 				rec->count++;
-				printf("increment existing entry\n");
 				return 1;
 			}
 			rec = rec->next;
 		}
-		// if no match found in existing bucket, create a new node and add to front
+		/*if no match found in existing bucket, create a new node and add to front*/
 		Record* new = malloc(sizeof(Record));
-		new->word = word;
-		new->file_path = file_path;
-		new->hash_string = hashstring;
+
+		new->word = malloc(strlen(word)+1);
+		strcpy(new->word,word);
+
+		new->file_path = malloc(strlen(file_path)+1);
+		strcpy(new->file_path,file_path);
+
+		new->hash_string = malloc(strlen(hashstring)+1);
+		strcpy(new->hash_string, hashstring);
+
 		new->count = 1;
 		new->next = hash_table->table[index];
 
 		hash_table->table[index] = new;
+		hash_table->size++;
 
-		printf("Inserted new Record to chain\n");
 		return 1;
 	}
 }
 
-//Searches for the record, using the key. Ruturns NULL if not found
-Record* ht_search(Hash* hash_table, char* word, char* file_path){
-	char hashstring [strlen(word) + strlen(file_path) + 1];
+/*Searches for the record, using the key. Ruturns NULL if not found*/
+Record* ht_search(Hash* hash_table, char* word, const char* file_path){
+	char hashstring[strlen(word) + strlen(file_path) + 1];
 	sprintf(hashstring, "%s%s", word, file_path);
 
 	unsigned long index = hash_function(hashstring);
 	if(hash_table->table[index]){
 		Record* rec = hash_table->table[index];
 		while(rec){
-			if(rec->word == word && rec->file_path == file_path) return rec;
+			if(strcmp(rec->hash_string,hashstring)==0) return rec;
 			rec = rec->next;
 		}
 	}
@@ -102,24 +126,24 @@ void ht_free(Hash* hash_table){
 	return;
 }
 
-void print_rec(Record* rec){
-	if(rec){
-		printf("Word: %s File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
-		return;
+Record** hash_pull(Hash* ht){
+	Record** rec_array = malloc((ht->size)*sizeof(Record*));
+	int i;
+	int r;
+	r = 0;
+	Record* rec = malloc(sizeof(Record));
+	for(i = 0; i < 2000; i++){
+		if(ht->table[i]){
+			rec = ht->table[i];
+			while(rec){
+				rec_array[r] = rec;
+				r++;
+				rec = rec->next;
+			}
+
+		}
 	}
-	printf("Record is NULL\n");
-	return;
+	return rec_array;
+
 }
 
-int main(){
-	Hash* mh = ht_create();
-	ht_add(mh, "a", "baa");
-	ht_add(mh, "a", "boo");
-	ht_add(mh, "a", "boo");
-	Record* rec = ht_search( mh, "a", "baa");
-	Record* rec1 = ht_search( mh, "a", "boo");
-
-	print_rec(rec);
-	print_rec(rec1);
-	return 0;
-}
