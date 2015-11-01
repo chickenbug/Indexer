@@ -68,7 +68,7 @@ int ht_add(Hash* hash_table, char* word, const char* file_path){
 		Record* rec = hash_table->table[index];
 		while(rec){
 			/*if a matching record is found, update the file count*/
-			if(rec->word == word && rec->file_path == file_path){
+			if(strcmp(rec->hash_string,hashstring) == 0){
 				rec->count++;
 				return 1;
 			}
@@ -144,6 +144,14 @@ Record** hash_pull(Hash* ht){
 		}
 	}
 	return rec_array;
+}
 
+// Compares 2 records by hash_string
+int rec_compare(void* vrec1, void* vrec2){
+	char* string1 = ((Record*)(rec1))->hash_string;
+	char* string2 = ((Record*)(rec2))->hash_string;
+	if(strcmp(string1, string2) < 1) return -1;
+	else if(strcmp(string1, string2) == 0) return 0;
+	else return 1;
 }
 
