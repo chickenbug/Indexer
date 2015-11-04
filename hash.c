@@ -3,7 +3,7 @@
 
 void print_rec(Record* rec){
 	if(rec){
-		printf("Word: %s File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
+		printf("Word: \"%s\" File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
 		return;
 	}
 	printf("Record is NULL\n");
@@ -147,11 +147,37 @@ Record** hash_pull(Hash* ht){
 }
 
 // Compares 2 records by hash_string
-int rec_compare(void* vrec1, void* vrec2){
-	char* string1 = ((Record*)(rec1))->hash_string;
-	char* string2 = ((Record*)(rec2))->hash_string;
-	if(strcmp(string1, string2) < 1) return -1;
-	else if(strcmp(string1, string2) == 0) return 0;
+int rec_compare(const void* vrec1, const void* vrec2){
+	Record* rec1 = *(Record* const*)(vrec1);
+	printf("Rec1:\t");
+	print_rec(rec1);
+	Record* rec2 = *(Record* const*)(vrec2);
+	printf("Rec2:\t");
+	print_rec(rec2);
+	if(strcoll(rec1->word, rec2->word) < 1){
+		printf("Word1 \"%s\" less than Word2 \"%s\"\n",rec1->word,rec2->word);
+		return -1;
+	}
+	else if(strcoll(rec1->word, rec2->word) == 0){
+		printf("Words are equal\n");
+		if(rec1->count - rec2->count == 0){
+			if(strcmp(rec1->file_path, rec2->file_path) == 0){
+				return 0;
+			}
+			else if(strcmp(rec1->file_path, rec2->file_path) < 1){
+				return -1;
+			}
+			else{
+				return 1;
+			}
+		}
+		else if(rec1->count - rec2->count < 1){
+			printf("HUH?\n");
+			return 1;
+		}
+		else{
+			return -1;
+		}
+	}
 	else return 1;
 }
-

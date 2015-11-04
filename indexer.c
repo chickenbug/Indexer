@@ -83,6 +83,14 @@ int main(int argc, char *argv[])
     for(i = 0; i < ht->size; i++){
         print_rec(rec_array[i]);
     }
+
+    qsort(rec_array, ht->size, sizeof(Record*), rec_compare);
+    printf("\n\n");
+    for(i = 0; i < ht->size; i++){
+        print_rec(rec_array[i]);
+    }
+
     ht_free(ht);
+
     return EXIT_SUCCESS;
 }
