@@ -134,7 +134,7 @@ Record** hash_pull(Hash* ht){
 	int i;
 	int r;
 	r = 0;
-	Record* rec = malloc(sizeof(Record));
+	Record* rec;
 	for(i = 0; i < 2000; i++){
 		if(ht->table[i]){
 			rec = ht->table[i];

@@ -2,6 +2,7 @@
 #include "hash.c"
 
 Hash *ht;
+char* out_path;
 
 int get_file_info(const char *filepath, const struct stat *info, const int typeflag, struct FTW *pathinfo){
     FILE* fp;
@@ -55,36 +56,43 @@ int get_Files(const char *const dirpath){
     
 }
 
-void jsonify( Record** rec_array){
+void print_json( Record** rec_array){
     char* curr_word;
     Record *curr_record, *next_record;
     int i;
 
-    printf("{\"list\" : [\n");
+    FILE* fp = fopen(out_path, "w");
+    if(!fp) {
+         printf("Output file is null\n");
+         return;
+    }
+
+    fprintf(fp, "{\"list\" : [\n");
     if(rec_array){
         curr_word = rec_array[0]->word;
         curr_record = rec_array[0];
-        printf("\t{\"%s\" : [\n", curr_word);
+        fprintf(fp, "\t{\"%s\" : [\n", curr_word);
 
         for(i = 0; i < ht->size - 1; i++){
             curr_record = rec_array[i];
             next_record = rec_array[i + 1];
 
             if(strcmp(curr_word, next_record->word) == 0){
-                printf("\t\t{\"%s\" : %d},\n", curr_record->file_path, curr_record->count);
+                fprintf(fp, "\t\t{\"%s\" : %d},\n", curr_record->file_path, curr_record->count);
             }
             else{
-                printf("\t\t{\"%s\" : %d}\n", curr_record->file_path, curr_record->count);
-                printf("\t]},\n");
-                printf("\t{\"%s\" : [\n", next_record->word);
+                fprintf(fp, "\t\t{\"%s\" : %d}\n", curr_record->file_path, curr_record->count);
+                fprintf(fp, "\t]},\n");
+                fprintf(fp, "\t{\"%s\" : [\n", next_record->word);
                 curr_word = next_record->word;
             }
         }
         curr_record = next_record;
-        printf("\t\t{\"%s\" : %d}\n", curr_record->file_path, curr_record->count);
-        printf("\t]}\n");
+        fprintf(fp, "\t\t{\"%s\" : %d}\n", curr_record->file_path, curr_record->count);
+        fprintf(fp, "\t]}\n");
     }
-    printf("]}\n");
+    fprintf(fp, "]}\n");
+    fclose(fp);
     return;
 }
 
@@ -98,7 +106,7 @@ int main(int argc, char *argv[])
     } 
     else {
     	ht = ht_create();
-       
+        out_path = argv[1];
         get_Files(argv[2]);
         
     }
@@ -106,9 +114,10 @@ int main(int argc, char *argv[])
     Record** rec_array;
     rec_array = hash_pull(ht);
     qsort(rec_array, ht->size, sizeof(Record*), rec_compare);
-    jsonify(rec_array);
+    print_json(rec_array);
 
     ht_free(ht);
+    free(rec_array);
 
     return EXIT_SUCCESS;
 }
