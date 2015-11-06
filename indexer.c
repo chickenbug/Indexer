@@ -15,33 +15,27 @@ int get_file_info(const char *filepath, const struct stat *info, const int typef
         if(fp==NULL){
             printf("Input file is null\n");
         }
-        // opf = fopen("output.txt","w");
-        while (fscanf(fp, "%s", word)!=EOF) {
+        
+        while (fscanf(fp, "%s", word) != EOF) {
             begin = word;
-            if(!isalpha(*begin)){
-                begin++;
-            }
             while(*begin != '\0'){
-                while(!isalnum(*begin) && *begin != '\0') begin++;
+                while(!isalpha(*begin)) begin++;
                 if(*begin == '\0') break;
-                end = begin;
 
-                while(isalnum(*(end+1))){
-                    end++;
-                }
+                end = begin;
+                while(isalnum(*(end+1))) end++;
+
                 char word_to_check[end - begin + 2];
                 word_to_check[end - begin + 1] ='\0';
                 strncpy(word_to_check, begin, end - begin + 1 );
+
                 for(p = word_to_check; *p; p++) *p = tolower(*p);
-                
             	ht_add(ht, word_to_check, filepath);
-                // matchStr(word_to_check);
                 begin = ++end; 
             }    
         }
         
         fclose(fp);
-        // fclose(opf);
     
   }
 
