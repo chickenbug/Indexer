@@ -6,11 +6,16 @@ char* out_path;
 
 int get_file_info(const char *filepath, const struct stat *info, const int typeflag, struct FTW *pathinfo){
     FILE* fp;
-    // FILE* opf;
     char word[1024];
     char* begin;
     char* end;
     char* p;
+    char yn;
+    if(strcoll(filepath,out_path)==0){
+        printf("Warning:\nThe ouput file you have chosen is also a data file.  Do you wish to continue and overwrite file at the end? (y or n) ");
+        scanf("%c", &yn);
+        if(yn == 'n') exit(0);
+    }
     if(typeflag == FTW_F){
         fp = fopen(filepath, "r");
         if(fp==NULL){
