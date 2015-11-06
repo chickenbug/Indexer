@@ -120,6 +120,9 @@ void ht_free(Hash* hash_table){
 		while(rec){
 			delete_rec = rec;
 			rec = rec->next;
+			free(delete_rec->word);
+			free(delete_rec->file_path);
+			free(delete_rec->hash_string);
 			free(delete_rec);
 		}
 	}
@@ -140,7 +143,6 @@ Record** hash_pull(Hash* ht){
 				r++;
 				rec = rec->next;
 			}
-
 		}
 	}
 	return rec_array;
