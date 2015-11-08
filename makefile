@@ -12,4 +12,4 @@ indexer.o: indexer.c indexer.h hash.c hash.h
 	$(COMPILEC) indexer.c hash.c
 
 clean:
-	rm -f *.o hash index
+	rm -f *.o index

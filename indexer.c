@@ -103,7 +103,7 @@ void print_json( Record** rec_array){
 }
 
 int main(int argc, char *argv[])
-{
+{    
     if (argc != 3) {
 
         printf("Incorrect number of arguments.  Run again\n");
@@ -111,6 +111,11 @@ int main(int argc, char *argv[])
 
     } 
     else {
+        if(strcmp(argv[2], ".") == 0 || strcmp(argv[2], "..") == 0){
+            printf("Error: Cannot utilize parent directory or current working directory as input.\n");
+            return EXIT_FAILURE;
+        }
+    
     	ht = ht_create();
         out_path = argv[1];
         get_Files(argv[2]);
