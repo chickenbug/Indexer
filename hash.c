@@ -1,6 +1,5 @@
 #include "hash.h"
 
-
 void print_rec(Record* rec){
 	if(rec){
 		printf("Word: \"%s\" File: %s  Count: %d\n", rec->word, rec->file_path, rec->count);
@@ -152,12 +151,12 @@ Record** hash_pull(Hash* ht){
 int rec_compare(const void* vrec1, const void* vrec2){
 	Record* rec1 = *(Record* const*)(vrec1);
 	Record* rec2 = *(Record* const*)(vrec2);
-	if(strcoll(rec1->word, rec2->word) == 0){
+	if(strcmp(rec1->word, rec2->word) == 0){
 		if(rec1->count - rec2->count == 0){
 			return strcmp(rec1->file_path, rec2->file_path);
 		}
 		else if(rec1->count - rec2->count < 1) return 1;
 		else return -1;
 	}
-	return strcoll(rec1->word, rec2->word);
+	return strcmp(rec1->word, rec2->word);
 }

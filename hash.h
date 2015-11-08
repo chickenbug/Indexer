@@ -38,4 +38,6 @@ void ht_free(Hash* hash_table);
 
 Record** hash_pull(Hash* ht);
 
+int rec_compare(const void* vrec1, const void* vrec2);
+
 #endif

@@ -11,7 +11,7 @@ int get_file_info(const char *filepath, const struct stat *info, const int typef
     char* end;
     char* p;
     char yn;
-    if(strcoll(filepath,out_path)==0){
+    if(strcmp(filepath,out_path)==0){
         printf("Warning:\nThe ouput file you have chosen is also a data file.  Do you wish to continue and overwrite file at the end? (y or n) ");
         scanf("%c", &yn);
         if(yn == 'n') exit(0);
@@ -25,7 +25,8 @@ int get_file_info(const char *filepath, const struct stat *info, const int typef
         while (fscanf(fp, "%s", word) != EOF) {
             begin = word;
             while(*begin != '\0'){
-                while(!isalpha(*begin)) begin++;
+                while(!isalpha(*begin)&& *begin != '\0') begin++;
+                
                 if(*begin == '\0') break;
 
                 end = begin;
@@ -115,14 +116,11 @@ int main(int argc, char *argv[])
         get_Files(argv[2]);
         
     }
-
     Record** rec_array;
     rec_array = hash_pull(ht);
     qsort(rec_array, ht->size, sizeof(Record*), rec_compare);
     print_json(rec_array);
-
     ht_free(ht);
     free(rec_array);
-
-    return EXIT_SUCCESS;
+    return 0;
 }
