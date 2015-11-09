@@ -10,6 +10,7 @@
 #define USE_FDS 15
 #endif
 
+#include "hash.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <ftw.h>

@@ -1,9 +1,6 @@
 #include "indexer.h"
 #include "hash.c"
 
-Hash *ht;
-char* out_path;
-
 int get_file_info(const char *filepath, const struct stat *info, const int typeflag, struct FTW *pathinfo){
     FILE* fp;
     char word[1024];
@@ -55,10 +52,8 @@ int get_Files(const char *const dirpath){
     if (dirpath == NULL || *dirpath == '\0')
         return errno = EINVAL;
     result = nftw(dirpath, get_file_info, USE_FDS, FTW_PHYS);
-    if (result >= 0)
-        errno = result;
 
-    return errno;
+    return result;
     
 }
 
@@ -115,10 +110,17 @@ int main(int argc, char *argv[])
             printf("Error: Cannot utilize parent directory or current working directory as input.\n");
             return EXIT_FAILURE;
         }
+        if(strcmp(argv[2],"") == 0){
+            printf("Error: Starting file or directory is NULL\n");
+             return EXIT_FAILURE;
+        }
     
-    	ht = ht_create();
+        ht = ht_create();
         out_path = argv[1];
-        get_Files(argv[2]);
+        if(get_Files(argv[2]) == -1) {
+            printf("File read fails. Invalid start input\n");
+            return EXIT_FAILURE;
+        }
         
     }
     Record** rec_array;
